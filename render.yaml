@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: chuguigeum-how-much
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run db:seed
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
