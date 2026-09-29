@@ -1,16 +1,13 @@
-import { readFile } from 'node:fs/promises';
-import { database } from '../db.mjs';
-import { migrate } from '../schema.mjs';
+import { readFile } from "node:fs/promises";
+import { database } from "../db.mjs";
+import { migrate } from "../schema.mjs";
 
 const db = database();
 
 try {
   await migrate(db);
   const records = JSON.parse(
-    await readFile(
-      new URL('../data/venues.json', import.meta.url),
-      'utf8'
-    )
+    await readFile(new URL("../data/venues.json", import.meta.url), "utf8"),
   );
 
   await db.execute(`
@@ -55,14 +52,14 @@ try {
         v.sourceName,
         v.checkedAt,
         v.priceDate,
-        v.status
-      ]
+        v.status,
+      ],
     })),
-    'write'
+    "write",
   );
 
   console.log(
-    `Seed completed: ${records.length} records considered; existing records preserved.`
+    `Seed completed: ${records.length} records considered; existing records preserved.`,
   );
 } finally {
   db.close();

@@ -1,0 +1,172 @@
+# 이 프로젝트로 React 공부하기
+
+## 먼저 알아둘 것
+
+React는 화면을 담당하고 Node.js는 서버를 담당합니다. 서버·DB를 React로 바꾸는 것이 아닙니다.
+기존 API를 유지하고, 문자열 HTML과 직접 DOM 조작을 React 컴포넌트로 바꿨습니다.
+축의금 공식은 큰 값 선택 → 5만원 단위 올림을 유지했습니다. 기본금액+식대 합산 방식은 적용하지 않았습니다.
+
+## 전체 파일 지도
+
+| 파일                                | 역할                                                          |
+| ----------------------------------- | ------------------------------------------------------------- |
+| index.html                          | root 요소, 제목·설명·네이버 인증 메타태그                     |
+| src/main.jsx                        | React 시작, HashRouter·AuthProvider 연결, 기존 hash 주소 호환 |
+| src/App.jsx                         | URL과 페이지 연결, 로그인·관리자 접근 구분                    |
+| src/components/Layout.jsx           | 공통 헤더·메뉴·로그아웃·footer·Outlet                         |
+| src/components/ProtectedRoute.jsx   | 로그인 확인 후 자식 화면 표시                                 |
+| src/components/Ui.jsx               | 공통 입력창·선택창·안내·로딩·오류 UI                          |
+| src/components/VenuePicker.jsx      | 예식장 검색·지역 필터·더 보기·선택                            |
+| src/components/CommunitySummary.jsx | 계산기 옆 로그인 회원용 사례 통계                             |
+| src/pages/CalculatorPage.jsx        | 계산기 입력 상태와 결과                                       |
+| src/pages/AuthPage.jsx              | 로그인·회원가입, 로그인 전 목적지 복귀                        |
+| src/pages/RecordsPage.jsx           | 개인 기록 추가·검색·합계·수정·삭제                            |
+| src/pages/CasesPage.jsx             | 사례 조건 필터·목록·등록·내 사례 철회                         |
+| src/pages/EtiquettePage.jsx         | 결혼식·장례식 예절, 종교별 안내 선택                          |
+| src/pages/AccountPage.jsx           | 비밀번호 변경·본인 탈퇴                                       |
+| src/pages/AdminPage.jsx             | 회원 상태 변경·삭제, 사례 승인·반려·삭제                      |
+| src/context/AuthContext.jsx         | 여러 화면에서 공유하는 로그인 상태                            |
+| src/hooks/useRemote.js              | API 조회·로딩·오류·재조회·요청 취소                           |
+| src/lib/api.js                      | fetch 요청·JSON·오류·세션 만료 처리                           |
+| src/lib/calculator.js               | 화면과 분리된 계산 함수                                       |
+| src/lib/labels.js                   | 선택지·한국어 표시·금액 포맷·날짜                             |
+| src/data/etiquette.js               | 종교별 장례 안내 데이터                                       |
+| src/styles/base.css                 | 기존 계산기·공통 스타일                                       |
+| src/styles/hub.css                  | 기록·회원 화면 스타일                                         |
+| src/styles/react.css                | React 구조·모바일에 필요한 추가 스타일                        |
+| public/favicon.svg                  | 브라우저 탭 아이콘                                            |
+| server.mjs                          | API 연결, 예식장 조회, dist 정적 파일 제공                    |
+| features.mjs                        | 회원·기록·사례·관리자 API와 권한 검증                         |
+| auth.mjs                            | scrypt 비밀번호 해시·검증, 토큰 생성                          |
+| db.mjs                              | Turso 연결                                                    |
+| schema.mjs                          | 기존 테이블 준비                                              |
+| data/venues.json                    | 예식장 초기 자료                                              |
+| scripts/seed.mjs                    | 테이블 준비와 예식장 데이터 입력                              |
+| scripts/admin.mjs                   | 관리자 생성                                                   |
+| scripts/dev.mjs                     | React 개발 서버와 API 동시 실행                               |
+| scripts/e2e-server.mjs              | 임시 DB 브라우저 테스트 서버                                  |
+| vite.config.js                      | JSX 빌드, API 프록시, 개발 포트                               |
+| playwright.config.js                | 브라우저 테스트 설정                                          |
+| calculator.test.mjs                 | 계산·예식장·정적 서버 검증                                    |
+| features.test.mjs                   | 로그인·권한·소유권·삭제·통계 검증                             |
+| tests/e2e/app.spec.js               | 실제 브라우저 클릭·폼 입력 검증                               |
+| render.yaml                         | Render 빌드·실행 설정                                         |
+| package.json                        | 실행 명령과 의존성                                            |
+| package-lock.json                   | 설치 버전 고정                                                |
+| .env.example                        | 설정 항목 예시                                                |
+| .env                                | 로컬 비밀 설정, Git 제외                                      |
+| .gitignore                          | 비밀 파일·빌드·테스트 결과 제외                               |
+| README.md                           | 적용·실행·배포 안내                                           |
+| UPDATE-V2.md                        | 이전 백엔드 확장 기록 (React 실행은 README 우선)              |
+| REACT-STUDY.md                      | 이 학습 안내                                                  |
+| dist/                               | npm run build가 생성한 배포용 결과, 직접 수정하지 않음        |
+| node_modules/                       | npm ci가 설치한 라이브러리, 직접 수정하지 않음                |
+
+## 1. JSX와 컴포넌트
+
+```jsx
+function Greeting({ name }) {
+  return <h2>안녕하세요, {name}님</h2>;
+}
+```
+
+JSX는 JavaScript 안에서 화면을 표현하는 문법입니다. 컴포넌트는 화면 조각을 반환하는 함수입니다.
+`<Greeting name="우혁" />`의 name이 props입니다. HTML의 class는 JSX에서 className, for는 htmlFor입니다.
+이 프로젝트는 사용자 입력을 `{record.memo}`로 표시합니다. HTML 문자열로 실행하지 않습니다.
+
+## 2. useState: 화면이 기억하는 값
+
+CalculatorPage.jsx:
+
+```jsx
+const [people, setPeople] = useState(1);
+<button onClick={() => setPeople(n => n + 1)}>+</button>
+<output>{people}</output>
+```
+
+people은 현재 값, setPeople은 변경 함수입니다. 값을 바꾸면 React가 컴포넌트를 다시 호출하고 결과를 갱신합니다.
+이전처럼 getElementById로 결과 DOM을 찾아 textContent를 바꾸지 않습니다.
+`setPeople(n => n + 1)`은 직전 상태를 기준으로 다음 상태를 계산합니다.
+
+연습: 인원 증가 버튼을 누르고 입력값·계산 결과가 함께 바뀌는 이유를 설명해보세요.
+
+## 3. 제어 입력과 계산 결과
+
+```jsx
+<input value={meal} onChange={(e) => setMeal(e.target.value)} />
+```
+
+입력창의 값이 React 상태와 연결됩니다. 입력 → 상태 갱신 → 재렌더링 → calculate 호출 → 결과 표시 순서입니다.
+계산 결과는 입력에서 바로 계산할 수 있으므로 별도의 결과 state에 중복 저장하지 않았습니다.
+
+## 4. props와 상태 끌어올리기
+
+CalculatorPage는 선택한 예식장과 식대를 기억합니다.
+VenuePicker는 목록을 그린 후 `onSelect(venue)`로 부모에게 선택 사실을 알려줍니다.
+부모가 setSelected와 setMeal을 호출합니다. 한 데이터의 주인을 명확히 정하는 연습입니다.
+
+## 5. useEffect와 useRemote
+
+서버 요청은 외부 시스템과의 연결입니다. useRemote는 주소가 바뀌면 useEffect 안에서 요청합니다.
+로딩·데이터·오류를 상태로 보관하고 AbortController로 이전 요청을 취소합니다.
+늦게 도착한 이전 필터 응답이 최신 화면을 덮어쓰지 않게 합니다.
+
+개발 중 StrictMode는 Effect의 정리 동작을 확인하기 위해 추가 실행할 수 있습니다.
+그래서 조회 효과에는 정리 함수를 두고, 삭제·가입 같은 변경 요청은 클릭·submit 안에서 실행합니다.
+
+## 6. Context로 로그인 상태 공유
+
+AuthProvider가 user와 로그인·로그아웃 함수를 공유합니다.
+Layout, ProtectedRoute, AccountPage가 각각 useAuth()로 같은 상태를 읽습니다.
+따라서 로그인 후 계산기로 이동해도 아이디가 표시됩니다.
+보안은 화면에서만 처리하지 않습니다. 서버 features.mjs가 세션과 role을 다시 검사합니다.
+
+## 7. React Router
+
+App.jsx에서 주소에 따라 화면을 지정합니다. Layout의 Outlet에 현재 페이지가 들어갑니다.
+HashRouter를 사용하므로 주소는 `/#/records`처럼 생깁니다.
+Link는 앱 안의 페이지 이동, 일반 a는 외부 사이트 이동에 사용합니다.
+ProtectedRoute는 비로그인 상태에 안내를 표시하고 로그인 후 원래 목적지로 이어줍니다.
+
+## 8. 개인 기록 저장 흐름
+
+1. RecordsPage의 폼 입력
+2. onSubmit에서 preventDefault (기본 페이지 이동 방지)
+3. api('/api/records', ...)로 JSON 전송
+4. features.mjs에서 세션·입력값·소유권 검증
+5. Turso에 INSERT
+6. reload()로 다시 조회
+7. state가 바뀌고 React가 목록을 다시 그림
+
+F12 → Network → /api/records의 Payload와 Response를 보면서 코드를 따라가세요.
+`editing`이 있는 경우 PUT, 없는 경우 POST입니다. DELETE에는 대상 기록 ID가 필요합니다.
+
+## 9. 목록과 key
+
+```jsx
+{
+  records.map((record) => <article key={record.id}>{record.person}</article>);
+}
+```
+
+map은 데이터를 화면 목록으로 변환합니다. key는 어떤 항목이 추가·삭제됐는지 구분하는 안정적인 ID입니다.
+수정·삭제되는 목록에서 배열 위치 대신 DB ID를 사용합니다.
+
+## 10. 공부 순서
+
+1. main.jsx → App.jsx → Layout.jsx: 실행과 페이지 구조
+2. CalculatorPage → calculator.js: state·입력·계산
+3. VenuePicker → useRemote → api: props·Effect·fetch
+4. AuthContext → ProtectedRoute → AuthPage: 공유 상태·로그인
+5. RecordsPage: CRUD·목록·필터·합계
+6. CasesPage → AdminPage: 승인·삭제·권한
+7. server.mjs → features.mjs → schema.mjs: 서버와 DB
+8. tests/e2e/app.spec.js: 사용자 행동을 자동화하는 방법
+
+처음 연습은 제목 수정, 버튼 문구 변경, 기본 친밀도 변경, 기록 검색 조건 추가 순서가 좋습니다.
+계산 규칙을 변경하면 calculator.test.mjs의 기대값과 화면 설명도 함께 수정하세요.
+
+## 공식 학습 자료
+
+- React: https://react.dev/learn
+- Vite: https://vite.dev/guide/

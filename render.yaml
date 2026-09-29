@@ -3,7 +3,7 @@ services:
     name: chuguigeum-how-much
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run db:seed
+    buildCommand: npm ci --include=dev && npm run build && npm run db:seed
     startCommand: npm start
     healthCheckPath: /healthz
     envVars:
