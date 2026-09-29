@@ -61,6 +61,11 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
       consent: true,
     });
     assert.equal(b.status, 200);
+    const community = (path) => call(path, "GET", null, b.cookie);
+    assert.equal((await call("community")).status, 401);
+    assert.equal((await call("cases")).status, 401);
+    assert.equal((await call("community", "GET", null, a.cookie)).status, 200);
+
     assert.equal(
       (
         await call("auth/login", "POST", {
@@ -137,7 +142,7 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
       consent: true,
     };
     assert.equal((await call("cases", "POST", sample, a.cookie)).status, 201);
-    assert.equal((await call("community")).body.count, 0);
+    assert.equal((await community("community")).body.count, 0);
     const caseId = (await call("cases", "GET", null, a.cookie)).body.cases[0]
       .id;
     await db.execute({
@@ -155,7 +160,7 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
       ).status,
       200,
     );
-    let stats = (await call("community")).body;
+    let stats = (await community("community")).body;
     assert.equal(stats.count, 1);
     assert.equal(stats.median, null);
     assert.ok(!JSON.stringify(stats).includes("PRIVATE"));
@@ -183,10 +188,10 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
         ],
       });
     }
-    stats = (await call("community")).body;
+    stats = (await community("community")).body;
     assert.equal(stats.count, 5);
     assert.equal(stats.median, 150000);
-    assert.equal((await call("community?people=2")).body.count, 0);
+    assert.equal((await community("community?people=2")).body.count, 0);
     const members = (await call("admin/users", "GET", null, b.cookie)).body;
     assert.ok(!JSON.stringify(members).includes("password_hash"));
     assert.equal(
@@ -201,7 +206,8 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
       200,
     );
     assert.equal((await call("records", "GET", null, a.cookie)).status, 401);
-    assert.equal((await call("community")).body.count, 4);
+    assert.equal((await call("community", "GET", null, a.cookie)).status, 401);
+    assert.equal((await community("community")).body.count, 4);
     await call(
       "admin/users/" + a.body.user.id,
       "PATCH",
@@ -215,7 +221,7 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
     });
     assert.equal(login.status, 200);
     await call("cases/" + caseId, "DELETE", {}, login.cookie);
-    assert.equal((await call("community")).body.count, 4);
+    assert.equal((await community("community")).body.count, 4);
     assert.equal(
       (
         await call(
@@ -321,7 +327,7 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
       ).status,
       200,
     );
-    assert.equal((await call("community")).body.count, 5);
+    assert.equal((await community("community")).body.count, 5);
     assert.equal(
       (await call(deletePath, "DELETE", confirmation, b.cookie)).status,
       200,
@@ -347,8 +353,8 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
       ).status,
       401,
     );
-    assert.equal((await call("community")).body.count, 4);
-    assert.equal((await call("community")).body.median, null);
+    assert.equal((await community("community")).body.count, 4);
+    assert.equal((await community("community")).body.median, null);
     assert.equal(
       (await call(deletePath, "DELETE", confirmation, b.cookie)).status,
       404,
@@ -415,7 +421,7 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
         1,
       );
       if (status === "approved")
-        assert.equal((await call("community")).body.count, 5);
+        assert.equal((await community("community")).body.count, 5);
       assert.equal(
         (await call(path, "DELETE", confirmation, b.cookie)).status,
         200,
@@ -434,7 +440,7 @@ test("회원·개인 기록·사례 승인·통계·관리자 권한·세션 폐
         ),
         false,
       );
-      const statsAfterDelete = (await call("community")).body;
+      const statsAfterDelete = (await community("community")).body;
       assert.equal(statsAfterDelete.count, 4);
       assert.equal(statsAfterDelete.median, null);
       assert.equal(

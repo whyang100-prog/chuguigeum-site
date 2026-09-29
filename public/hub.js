@@ -81,12 +81,12 @@ function bindForm(id, fn) {
 function heading(title, sub) {
   return `<div class="page-heading"><h1>${title}</h1><p>${sub}</p></div>`;
 }
-function needLogin() {
+function needLogin(title = "나만의 경조사 기록") {
   if (me) return false;
   $("view").innerHTML =
     heading(
-      "나만의 경조사 기록",
-      "로그인하면 기기가 바뀌어도 기록이 이어져요.",
+      title,
+      "내 경조사 기록과 사용자 사례는 로그인 후 이용할 수 있어요.",
     ) +
     '<div class="empty-state"><h2>로그인하고 시작해 주세요</h2><p>개인 기록은 공개 사례에 자동으로 공유되지 않아요.</p><a href="#login" class="primary">로그인 / 회원가입</a></div>';
   return true;
@@ -230,6 +230,7 @@ function renderRecords() {
   );
 }
 async function casesPage(version) {
+  if (needLogin("사용자 사례")) return;
   $("view").innerHTML =
     heading(
       "이런 사이, 이만큼 전했어요",

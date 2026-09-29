@@ -165,6 +165,7 @@ export function featureRoutes(db) {
     }
     const u = await user(req);
     if (path === "/api/community" && req.method === "GET") {
+      if (!u) fail(401, "사용자 사례는 로그인 후 이용할 수 있습니다.");
       const kind = choice(url.searchParams.get("kind") || "wedding", [
         "wedding",
         "funeral",
