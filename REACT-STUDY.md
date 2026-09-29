@@ -57,10 +57,11 @@ React는 화면을 담당하고 Node.js는 서버를 담당합니다. 서버·DB
 | .env                                | 로컬 비밀 설정, Git 제외                                      |
 | .gitignore                          | 비밀 파일·빌드·테스트 결과 제외                               |
 | README.md                           | 적용·실행·배포 안내                                           |
-| UPDATE-V2.md                        | 이전 백엔드 확장 기록 (React 실행은 README 우선)              |
 | REACT-STUDY.md                      | 이 학습 안내                                                  |
 | dist/                               | npm run build가 생성한 배포용 결과, 직접 수정하지 않음        |
 | node_modules/                       | npm ci가 설치한 라이브러리, 직접 수정하지 않음                |
+
+정리 명령 `npm run cleanup:legacy`는 남아 있는 구버전 화면 파일만 프로젝트 밖에 백업하고 제거합니다.
 
 ## 1. JSX와 컴포넌트
 

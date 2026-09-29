@@ -63,16 +63,19 @@ git push
 기존 `/hub#records` 링크도 새 화면으로 연결됩니다.
 이 버전은 클라이언트 렌더링입니다. 검색용 정적 페이지/SSR은 별도 구현하지 않았습니다.
 
-## 이전 파일 정리
+## 구버전 파일 정리
 
-덮어쓰기하면 이전 public 파일이 남을 수 있지만 서버는 dist만 제공합니다.
-새 화면 동작 확인 후 아래 구버전 파일만 선택적으로 삭제할 수 있습니다.
+압축을 덮어쓴 후 다음을 한 번 실행하세요.
 
-- public/app.js, public/calculator.js
-- public/hub.js, public/hub.html, public/index.html
-- public/style.css, public/hub.css
+```powershell
+npm run cleanup:legacy
+```
 
-public/favicon.svg는 유지하세요. 공부할 때는 src 안의 파일을 수정하세요.
+이 명령은 남아 있는 구버전 public 화면 7개와 UPDATE-V2.md만 제거합니다.
+삭제 전 프로젝트 바깥의 형제 폴더에 백업합니다. `.env`, `.git`, 회원·기록 DB, 서버 코드는 유지됩니다.
+새 React 화면은 src, 입구 HTML은 루트 index.html, 정적 아이콘은 public/favicon.svg에 있습니다.
+Node.js 서버는 React에서 호출하는 로그인·기록·관리자 API이므로 필요합니다.
+빌드 결과 dist와 설치 라이브러리 node_modules는 자동 생성되므로 공부할 때 직접 수정하지 않습니다.
 
 ## 테스트
 
