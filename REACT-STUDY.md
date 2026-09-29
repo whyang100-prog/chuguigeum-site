@@ -29,7 +29,7 @@ React는 화면을 담당하고 Node.js는 서버를 담당합니다. 서버·DB
 | src/hooks/useRemote.js              | API 조회·로딩·오류·재조회·요청 취소                           |
 | src/lib/api.js                      | fetch 요청·JSON·오류·세션 만료 처리                           |
 | src/lib/calculator.js               | 화면과 분리된 계산 함수                                       |
-| src/lib/labels.js                   | 선택지·한국어 표시·금액 포맷·날짜                             |
+| src/lib/labels.js                   | 선택지·다국어 표시·금액 포맷·날짜                             |
 | src/data/etiquette.js               | 종교별 장례 안내 데이터                                       |
 | src/styles/base.css                 | 기존 계산기·공통 스타일                                       |
 | src/styles/hub.css                  | 기록·회원 화면 스타일                                         |
@@ -171,3 +171,74 @@ map은 데이터를 화면 목록으로 변환합니다. key는 어떤 항목이
 
 - React: https://react.dev/learn
 - Vite: https://vite.dev/guide/
+
+## 추가 학습: 영어·일본어 전환
+
+### 파일 지도
+
+| 파일                                | 역할                                                               |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| src/components/LanguageSwitcher.jsx | 한국어·영어·일본어 선택창                                          |
+| src/i18n/index.js                   | 현재 언어, localStorage 저장, React 구독 Hook, HTML 언어·제목 변경 |
+| src/i18n/translations.js            | 번역 조회, `{0}` 자리표시자 치환, 서버 오류 번역                   |
+| src/i18n/en.json                    | 한국어 문장 → 영어 문장 사전                                       |
+| src/i18n/ja.json                    | 한국어 문장 → 일본어 문장 사전                                     |
+| src/lib/labels.js                   | 선택지의 표시 이름과 원화 금액 포맷                                |
+| i18n.test.mjs                       | 사전의 누락·자리표시자와 오류 번역 테스트                          |
+| tests/e2e/languages.spec.js         | 언어 전환·저장·입력 유지·원문 보존·관리자 브라우저 테스트          |
+
+### 버튼을 누르면 일어나는 일
+
+1. 선택창의 `onChange`가 `setLanguage("en")`을 호출합니다.
+2. `index.js`가 현재 언어를 변경하고 `localStorage`의 `gift-language`에 저장합니다.
+3. `useSyncExternalStore`가 변경을 구독한 컴포넌트에 알려 줍니다.
+4. 컴포넌트가 다시 렌더링되고 `t("로그인")`이 영어 사전의 `"Sign in"`을 반환합니다.
+5. 같은 React 컴포넌트가 유지되므로 입력 중인 값과 선택한 조건도 유지됩니다.
+
+`useLanguage()`는 언어 변경을 구독하는 Hook입니다. 단순히 `t()`만 부르는 파일은
+번역을 읽을 수는 있지만, 언어 변경 시 스스로 다시 렌더링할 구독이 없습니다.
+화면 컴포넌트에서 `useLanguage()`를 함께 호출하는 이유입니다.
+
+```jsx
+import { t, useLanguage } from "../i18n/index";
+
+export default function Example() {
+  useLanguage();
+  return <button>{t("로그인")}</button>;
+}
+```
+
+기본 한국어 문장이 사전의 키입니다. 한국어일 때는 키 자체를 표시합니다.
+새 문구를 추가하면 영어·일본어 JSON 양쪽에 같은 키를 넣어 주세요.
+기존 한국어 문구를 바꿀 때에도 코드와 두 사전의 키를 함께 바꿔야 합니다.
+
+```json
+{
+  "로그인": "Sign in",
+  "참고 범위 {0}–{1}": "Reference range: {0}–{1}"
+}
+```
+
+`{0}`, `{1}`은 문장을 완성할 때 넣을 값의 순서입니다.
+
+```jsx
+t("참고 범위 {0}–{1}", [won(100000), won(150000)]);
+// 영어: Reference range: 100,000 KRW–150,000 KRW
+```
+
+`names`의 getter는 읽을 때마다 현재 언어의 표시 이름을 반환합니다.
+`names.colleague`는 한국어에서 “자주 보는 사이”, 영어에서 “Regular contact”입니다.
+서버로 보내는 값은 계속 `colleague`이므로 데이터와 필터 기준이 달라지지 않습니다.
+지역도 화면에서는 Seoul로 표시하지만 검색 조건에는 기존 DB 값인 서울을 사용합니다.
+
+서버는 기존 한국어 오류를 반환합니다. `Ui.jsx`의 `Notice`와 `RemoteStatus`가
+`systemMessage()`로 선택한 언어에 맞춰 표시합니다.
+이미 표시된 저장 완료·오류 메시지도 언어를 바꾸면 다시 번역됩니다.
+새로운 서버 오류를 추가하면 두 번역 사전에 해당 문장을 추가하세요.
+알 수 없는 오류는 숨기지 않고 원문으로 표시합니다.
+
+회원이 쓴 글에는 `t()`나 `systemMessage()`를 적용하지 않습니다.
+예를 들어 `{item.story}`는 React가 일반 텍스트로 그대로 표시합니다.
+금액은 숫자를 저장하고 표시할 때만 `won()`으로 포맷합니다.
+영어의 `100,000 KRW`, 일본어의 `100,000ウォン`은 모두 한국 돈 10만원입니다.
+브라우저 자체 날짜 선택창·기본 입력 검증 팝업의 언어는 브라우저 설정에 따라 다를 수 있습니다.

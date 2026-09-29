@@ -1,4 +1,6 @@
-export const names = {
+import { t, getLanguage } from "../i18n/index.js";
+
+const koreanNames = {
   wedding: "축의금",
   funeral: "조의금",
   paid: "낸 돈",
@@ -18,6 +20,14 @@ export const names = {
   member: "회원",
   admin: "관리자",
 };
+// 값(colleague 등)은 유지하고, 화면에 표시할 이름만 번역합니다.
+export const names = Object.fromEntries(
+  Object.keys(koreanNames).map((key) => [key, koreanNames[key]]),
+);
+for (const key of Object.keys(koreanNames)) {
+  Object.defineProperty(names, key, { get: () => t(koreanNames[key]) });
+}
+
 export const relations = ["acquaintance", "colleague", "close", "best"];
 export const attendanceOptions = ["meal", "no-meal", "absent"];
 export const regions = [
@@ -41,7 +51,13 @@ export const regions = [
   "경남",
   "제주",
 ].filter((x, i, all) => all.indexOf(x) === i);
-export const won = (value) => Number(value).toLocaleString("ko-KR") + "원";
+export function won(value) {
+  const language = getLanguage();
+  const number = Number(value).toLocaleString(language);
+  return language === "ko"
+    ? number + "원"
+    : number + (language === "ja" ? "ウォン" : " KRW");
+}
 export function today() {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
 }

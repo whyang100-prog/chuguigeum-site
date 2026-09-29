@@ -1,3 +1,4 @@
+import { t, useLanguage } from "./i18n/index";
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -10,6 +11,7 @@ import AccountPage from "./pages/AccountPage";
 import AdminPage from "./pages/AdminPage";
 import { Link } from "react-router-dom";
 export default function App() {
+  useLanguage();
   return (
     <Routes>
       <Route element={<Layout />}>
@@ -29,8 +31,8 @@ export default function App() {
           path="*"
           element={
             <div className="empty-state">
-              <h1>페이지를 찾을 수 없어요</h1>
-              <Link to="/">계산기로 돌아가기</Link>
+              <h1>{t("페이지를 찾을 수 없어요")}</h1>
+              <Link to="/">{t("계산기로 돌아가기")}</Link>
             </div>
           }
         />

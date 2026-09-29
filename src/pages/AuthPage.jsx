@@ -1,8 +1,10 @@
+import { t, useLanguage } from "../i18n/index";
 import { useState } from "react";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Field, Notice } from "../components/Ui";
 export default function AuthPage({ register = false }) {
+  useLanguage();
   const { user, signIn } = useAuth();
   const [params] = useSearchParams();
   // 로그인 후 이동할 주소를 허용한 내부 페이지로 제한합니다.
@@ -33,22 +35,22 @@ export default function AuthPage({ register = false }) {
   }
   return (
     <section className="panel auth-panel">
-      <h1>{register ? "회원가입" : "다시 만나 반가워요"}</h1>
+      <h1>{register ? t("회원가입") : t("다시 만나 반가워요")}</h1>
       <Notice>{error}</Notice>
       <form onSubmit={submit}>
         <fieldset disabled={busy} className="hub-form">
           <Field
-            label="아이디"
+            label={t("아이디")}
             name="username"
             required
             minLength={4}
             maxLength={24}
             pattern="[a-zA-Z0-9_]+"
             autoComplete="username"
-            placeholder="영문·숫자·밑줄 4~24자"
+            placeholder={t("영문·숫자·밑줄 4~24자")}
           />
           <Field
-            label="비밀번호"
+            label={t("비밀번호")}
             name="password"
             type="password"
             required
@@ -59,19 +61,20 @@ export default function AuthPage({ register = false }) {
           {register && (
             <label className="check">
               <input type="checkbox" name="consent" required />
-              아이디·비밀번호 해시와 개인 기록을 계정 유지에 사용하고 탈퇴
-              시까지 저장하는 데 동의합니다. 기록과 공개 사례는 언제든 삭제할 수
-              있습니다.
+              {t(
+                "아이디·비밀번호 해시와 개인 기록을 계정 유지에 사용하고 탈퇴 시까지 저장하는 데 동의합니다. 기록과 공개 사례는 언제든 삭제할 수 있습니다.",
+              )}
             </label>
           )}
           <button className="primary" type="submit">
-            {busy ? "처리 중…" : register ? "가입하고 시작" : "로그인"}
+            {busy ? t("처리 중…") : register ? t("가입하고 시작") : t("로그인")}
           </button>
         </fieldset>
       </form>
       <p className="hint">
-        이메일은 수집하지 않으며 이메일 인증·비밀번호 찾기는 제공하지 않습니다.
-        아이디와 비밀번호를 안전하게 보관해 주세요.
+        {t(
+          "이메일은 수집하지 않으며 이메일 인증·비밀번호 찾기는 제공하지 않습니다. 아이디와 비밀번호를 안전하게 보관해 주세요.",
+        )}
       </p>
       <Link
         onClick={() => setError("")}
@@ -81,7 +84,7 @@ export default function AuthPage({ register = false }) {
           encodeURIComponent(next)
         }
       >
-        {register ? "이미 계정이 있어요" : "처음이라면 회원가입"}
+        {register ? t("이미 계정이 있어요") : t("처음이라면 회원가입")}
       </Link>
     </section>
   );

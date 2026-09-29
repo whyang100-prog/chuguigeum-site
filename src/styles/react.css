@@ -55,3 +55,77 @@ textarea:focus-visible {
     flex-wrap: wrap;
   }
 }
+
+/* 번역 문구가 길어져도 줄바꿈되도록 구성합니다. */
+header {
+  height: auto;
+  min-height: 90px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.language-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.language-switcher select {
+  font: inherit;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: #242d2a;
+  max-width: 150px;
+}
+header .brand {
+  white-space: normal;
+}
+.hub-nav a {
+  white-space: normal;
+}
+.section-title {
+  flex-wrap: wrap;
+}
+html:not([lang="ko"]) .result .amount strong {
+  font-size: clamp(32px, 4vw, 64px);
+  overflow-wrap: anywhere;
+}
+.result dl > div {
+  gap: 12px;
+}
+.result dd {
+  text-align: right;
+}
+footer {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+footer > .hint {
+  flex-basis: 100%;
+}
+@media (max-width: 600px) {
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  header {
+    padding-block: 16px;
+  }
+  .section-title h2 {
+    font-size: 18px;
+  }
+  html:not([lang="ko"]) .result .amount strong {
+    font-size: 48px;
+  }
+}
+
+.result .amount {
+  flex-wrap: wrap;
+}

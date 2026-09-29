@@ -1,3 +1,4 @@
+import { t, useLanguage } from "../i18n/index";
 import { useState } from "react";
 import { api } from "../lib/api";
 import { names, relations, won, today } from "../lib/labels";
@@ -14,6 +15,7 @@ const blank = () => ({
   memo: "",
 });
 export default function RecordsPage() {
+  useLanguage();
   const result = useRemote("/api/records");
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState(null);
@@ -51,7 +53,7 @@ export default function RecordsPage() {
         method: editing ? "PUT" : "POST",
         body: { ...form, amount: Number(form.amount) },
       });
-      setNotice(editing ? "기록을 수정했어요." : "기록을 저장했어요.");
+      setNotice(editing ? t("기록을 수정했어요.") : t("기록을 저장했어요."));
       reset();
       result.reload();
     } catch (error) {
@@ -61,12 +63,12 @@ export default function RecordsPage() {
     }
   }
   async function remove(id) {
-    if (!confirm("이 개인 기록을 삭제할까요? 복구할 수 없습니다.")) return;
+    if (!confirm(t("이 개인 기록을 삭제할까요? 복구할 수 없습니다."))) return;
     setBusy(true);
     try {
       await api("/api/records/" + id, { method: "DELETE", body: {} });
       if (editing === id) reset();
-      setNotice("기록을 삭제했어요.");
+      setNotice(t("기록을 삭제했어요."));
       result.reload();
     } catch (error) {
       setNotice(error.message);
@@ -76,36 +78,38 @@ export default function RecordsPage() {
   }
   return (
     <>
-      <Heading title="기억하고 싶은 마음의 기록">
-        축의금과 조의금, 낸 돈과 받은 돈을 한곳에. 이 기록은 본인에게만 보여요.
+      <Heading title={t("기억하고 싶은 마음의 기록")}>
+        {t(
+          "축의금과 조의금, 낸 돈과 받은 돈을 한곳에. 이 기록은 본인에게만 보여요.",
+        )}
       </Heading>
       <Notice>{notice}</Notice>
       <div className="hub-grid">
         <section className="panel">
-          <h2>{editing ? "기록 수정" : "새 기록 남기기"}</h2>
+          <h2>{editing ? t("기록 수정") : t("새 기록 남기기")}</h2>
           <form onSubmit={save}>
             <fieldset disabled={busy} className="hub-form">
               <div className="two">
                 <Select
-                  label="종류"
+                  label={t("종류")}
                   options={["wedding", "funeral"]}
                   {...field("kind")}
                 />
                 <Select
-                  label="구분"
+                  label={t("구분")}
                   options={["paid", "received"]}
                   {...field("direction")}
                 />
               </div>
               <Field
-                label="상대 이름 또는 별칭"
+                label={t("상대 이름 또는 별칭")}
                 required
                 maxLength={50}
                 {...field("person")}
               />
               <div className="two">
                 <Field
-                  label="금액 (원)"
+                  label={t("금액 (원)")}
                   type="number"
                   required
                   min="0"
@@ -114,58 +118,62 @@ export default function RecordsPage() {
                   {...field("amount")}
                 />
                 <Field
-                  label="날짜"
+                  label={t("날짜")}
                   type="date"
                   required
                   {...field("event_date")}
                 />
               </div>
               <Select
-                label="우리 사이"
+                label={t("우리 사이")}
                 options={relations}
                 {...field("relation")}
               />
-              <Field label="메모">
+              <Field label={t("메모")}>
                 <textarea maxLength={500} {...field("memo")} />
               </Field>
               <div className="form-actions">
                 <button className="primary" type="submit">
-                  {busy ? "처리 중…" : editing ? "수정 저장" : "기록 저장"}
+                  {busy
+                    ? t("처리 중…")
+                    : editing
+                      ? t("수정 저장")
+                      : t("기록 저장")}
                 </button>
                 {editing && (
                   <button className="secondary" type="button" onClick={reset}>
-                    수정 취소
+                    {t("수정 취소")}
                   </button>
                 )}
               </div>
             </fieldset>
           </form>
         </section>
-        <section aria-label="기록 목록">
+        <section aria-label={t("기록 목록")}>
           <div className="filters">
             <input
-              aria-label="기록 검색"
-              placeholder="이름 또는 메모 검색"
+              aria-label={t("기록 검색")}
+              placeholder={t("이름 또는 메모 검색")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <select
-              aria-label="기록 종류 필터"
+              aria-label={t("기록 종류 필터")}
               value={kind}
               onChange={(e) => setKind(e.target.value)}
             >
-              <option value="">전체 종류</option>
-              <option value="wedding">축의금</option>
-              <option value="funeral">조의금</option>
+              <option value="">{t("전체 종류")}</option>
+              <option value="wedding">{t("축의금")}</option>
+              <option value="funeral">{t("조의금")}</option>
             </select>
             <select
-              aria-label="기록 구분 필터"
+              aria-label={t("기록 구분 필터")}
               value={direction}
               onChange={(e) => setDirection(e.target.value)}
             >
-              <option value="">낸 돈·받은 돈</option>
-              <option value="paid">낸 돈</option>
-              <option value="received">받은 돈</option>
+              <option value="">{t("낸 돈·받은 돈")}</option>
+              <option value="paid">{t("낸 돈")}</option>
+              <option value="received">{t("받은 돈")}</option>
             </select>
           </div>
           <RemoteStatus {...result} />
@@ -173,9 +181,9 @@ export default function RecordsPage() {
             <>
               <div className="stats">
                 {[
-                  ["기록", rows.length + "건"],
-                  ["낸 돈", won(total("paid"))],
-                  ["받은 돈", won(total("received"))],
+                  [t("기록"), rows.length + t("건")],
+                  [t("낸 돈"), won(total("paid"))],
+                  [t("받은 돈"), won(total("received"))],
                 ].map(([label, value]) => (
                   <div className="stat" key={label}>
                     <small>{label}</small>
@@ -185,8 +193,9 @@ export default function RecordsPage() {
               </div>
               {!rows.length && (
                 <div className="empty-state">
-                  아직 기록이 없어요. 첫 기록을 남기거나 검색 조건을 바꿔
-                  보세요.
+                  {t(
+                    "아직 기록이 없어요. 첫 기록을 남기거나 검색 조건을 바꿔 보세요.",
+                  )}
                 </div>
               )}
               {rows.map((row) => (
@@ -213,14 +222,14 @@ export default function RecordsPage() {
                         window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
                     >
-                      수정
+                      {t("수정")}
                     </button>
                     <button
                       disabled={busy}
                       className="danger"
                       onClick={() => remove(row.id)}
                     >
-                      삭제
+                      {t("삭제")}
                     </button>
                   </div>
                 </article>

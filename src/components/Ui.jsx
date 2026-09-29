@@ -1,5 +1,7 @@
+import { t, useLanguage, systemMessage } from "../i18n/index";
 import { names } from "../lib/labels";
 export function Heading({ title, children }) {
+  useLanguage();
   return (
     <div className="page-heading">
       <h1>{title}</h1>
@@ -8,13 +10,15 @@ export function Heading({ title, children }) {
   );
 }
 export function Notice({ children }) {
+  useLanguage();
   return children ? (
     <p className="callout" role="status">
-      {children}
+      {systemMessage(children)}
     </p>
   ) : null;
 }
 export function Field({ label, children, ...props }) {
+  useLanguage();
   return (
     <label>
       {label}
@@ -23,6 +27,7 @@ export function Field({ label, children, ...props }) {
   );
 }
 export function Select({ label, options, ...props }) {
+  useLanguage();
   return (
     <label>
       {label}
@@ -37,13 +42,14 @@ export function Select({ label, options, ...props }) {
   );
 }
 export function RemoteStatus({ loading, error, reload }) {
-  if (loading) return <p role="status">불러오는 중…</p>;
+  useLanguage();
+  if (loading) return <p role="status">{t("불러오는 중…")}</p>;
   if (error)
     return (
       <div role="alert" className="callout">
-        {error}{" "}
+        {systemMessage(error)}{" "}
         <button className="secondary" onClick={reload}>
-          다시 시도
+          {t("다시 시도")}
         </button>
       </div>
     );
