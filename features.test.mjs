@@ -34,5 +34,16 @@ await call('cases/'+caseId,'DELETE',{},login.cookie);assert.equal((await call('c
 assert.equal((await call('auth/password','POST',{current:'test-password-123',password:'replacement-password'},login.cookie)).status,200);assert.equal((await call('records','GET',null,login.cookie)).status,401);
 const again=await call('auth/login','POST',{username:'alice',password:'replacement-password'});await call('auth/account','DELETE',{password:'replacement-password'},again.cookie);assert.equal((await db.execute({sql:'SELECT * FROM records WHERE user_id=?',args:[a.body.user.id]})).rows.length,0);assert.equal((await call('auth/me','GET',null,again.cookie)).body.user,null);
 await call('auth/logout','POST',{},b.cookie);assert.equal((await call('admin/users','GET',null,b.cookie)).status,401);
-}finally{delete process.env.APP_ORIGIN;await new Promise(r=>server.close(r));db.close();await rm(dir,{recursive:true,force:true});}
-});
+}finally {
+  delete process.env.APP_ORIGIN;
+
+  await new Promise(resolve => server.close(resolve));
+  db.close();
+
+  await rm(dir, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 200
+  });
+}});
