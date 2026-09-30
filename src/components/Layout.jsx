@@ -1,3 +1,4 @@
+import PageMetadata from "./PageMetadata";
 import { t, useLanguage } from "../i18n/index";
 import { useState } from "react";
 import {
@@ -31,6 +32,7 @@ export default function Layout() {
   }
   return (
     <>
+      <PageMetadata />
       <header>
         <Link className="brand" to="/">
           <span className="brand-symbol">₩</span>

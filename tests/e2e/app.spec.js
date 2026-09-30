@@ -1,106 +1,200 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('공개 계산기·예절, 로그인 제한, 기존 주소와 모바일', async ({ page }) => {
+test("공개 계산기·예절, 로그인 제한, 기존 주소와 모바일", async ({ page }) => {
   const errors = [];
-  page.on('pageerror', error => errors.push(error.message));
-  await page.goto('/');
-  await expect(page.getByRole('heading', { name:/금액이 고민이라면/ })).toBeVisible();
-  await page.getByLabel('알고 있는 식대가 있나요?', { exact:false }).fill('80000');
-  await page.getByRole('button', { name:'식사 인원 한 명 늘리기' }).click();
-  await expect(page.getByTestId('calculated-amount')).toHaveText('20');
-  await page.getByLabel('식사하지 않아요', { exact:true }).check();
-  await expect(page.getByTestId('calculated-amount')).toHaveText('10');
-  await page.getByRole('link', { name:'예절 가이드', exact:true }).click();
-  await page.getByRole('button', { name:'개신교식' }).click();
-  await expect(page.locator('.religion-body')).toContainText('헌화 후 묵념');
-  await page.getByRole('link', { name:'사용자 사례', exact:true }).click();
-  await expect(page.getByRole('heading', { name:'로그인하고 시작해 주세요' })).toBeVisible();
-  await page.goto('/hub#records');
-  await expect(page.getByRole('heading', { name:'로그인하고 시작해 주세요' })).toBeVisible();
-  await page.goto('/');
-  await page.setViewportSize({ width:390, height:844 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path:'test-results/calculator-mobile.png', fullPage:true });
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await expect(
+    page.getByRole("heading", { name: /금액이 고민이라면/ }),
+  ).toBeVisible();
+  await page
+    .getByLabel("알고 있는 식대가 있나요?", { exact: false })
+    .fill("80000");
+  await page.getByRole("button", { name: "식사 인원 한 명 늘리기" }).click();
+  await expect(page.getByTestId("calculated-amount")).toHaveText("20");
+  await page.getByLabel("식사하지 않아요", { exact: true }).check();
+  await expect(page.getByTestId("calculated-amount")).toHaveText("10");
+  await page.getByRole("link", { name: "예절 가이드", exact: true }).click();
+  await page.getByRole("button", { name: "개신교식" }).click();
+  await expect(page.locator(".religion-body")).toContainText("헌화 후 묵념");
+  await page.getByRole("link", { name: "사용자 사례", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "로그인하고 시작해 주세요" }),
+  ).toBeVisible();
+  await page.goto("/hub#records");
+  await expect(
+    page.getByRole("heading", { name: "로그인하고 시작해 주세요" }),
+  ).toBeVisible();
+  await page.goto("/");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.screenshot({
+    path: "test-results/calculator-mobile.png",
+    fullPage: true,
+  });
   expect(errors).toEqual([]);
 });
 
-test('회원가입·기록 CRUD·사례 철회·비밀번호 변경·탈퇴', async ({ page }) => {
-  const errors=[];page.on('pageerror', error=>errors.push(error.message));
-  await page.goto('/#/register');
-  await page.getByLabel('아이디', { exact:true }).fill('react_member');
-  await page.getByLabel('비밀번호', { exact:true }).fill('test-member-password');
-  await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name:'가입하고 시작' }).click();
-  await expect(page.getByRole('heading', { name:'기억하고 싶은 마음의 기록' })).toBeVisible();
-  await page.getByLabel('상대 이름 또는 별칭').fill('대학 동기');
-  await page.getByLabel('금액 (원)', { exact:true }).fill('150000');
-  await page.getByLabel('메모', { exact:true }).fill('<img src=x onerror=alert(1)>');
-  await page.getByRole('button', { name:'기록 저장', exact:true }).click();
-  await expect(page.getByRole('heading', { name:'대학 동기' })).toBeVisible();
-  await expect(page.getByText('<img src=x onerror=alert(1)>', { exact:true })).toBeVisible();
-  await page.getByRole('button', { name:'수정', exact:true }).click();
-  await page.getByLabel('금액 (원)', { exact:true }).fill('200000');
-  await page.getByRole('button', { name:'수정 저장' }).click();
-  await expect(page.locator('.amount-small')).toHaveText('200,000원');
-  page.once('dialog', d => d.accept());
-  await page.getByRole('button', { name:'삭제', exact:true }).click();
-  await expect(page.getByRole('heading', { name:'대학 동기' })).toHaveCount(0);
-  await page.getByRole('link', { name:'사용자 사례', exact:true }).click();
-  await page.getByLabel('실제로 낸 총액 (원)').fill('100000');
-  await page.getByLabel('행사 월', { exact:true }).fill(new Date().toISOString().slice(0,7));
-  await page.getByLabel('어떤 사이였고, 왜 이 금액을 정했나요?').fill('함께 수업을 들었던 친구에게 축의금을 냈습니다.');
-  await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name:'검토 요청하기' }).click();
-  await expect(page.getByText('검토 대기', { exact:true })).toBeVisible();
-  page.once('dialog', d => d.accept());
-  await page.getByRole('button', { name:'사례 철회' }).click();
-  await expect(page.getByText('제출한 사례가 없어요.')).toBeVisible();
-  await page.getByRole('link', { name:'축의금 계산', exact:true }).click();
-  await expect(page.getByRole('link', { name:'react_member · 내 계정' })).toBeVisible();
-  await expect(page.locator('header').getByText('로그인 / 회원가입')).toHaveCount(0);
-  await page.getByRole('link', { name:'react_member · 내 계정' }).click();
-  await page.getByLabel('현재 비밀번호', { exact:true }).fill('test-member-password');
-  await page.getByLabel('새 비밀번호', { exact:true }).fill('replacement-password');
-  await page.getByRole('button', { name:'변경하고 로그아웃' }).click();
-  await expect(page.getByRole('heading', { name:'다시 만나 반가워요' })).toBeVisible();
-  await page.getByLabel('아이디', { exact:true }).fill('react_member');
-  await page.getByLabel('비밀번호', { exact:true }).fill('replacement-password');
-  await page.getByRole('button', { name:'로그인', exact:true }).click();
-  await page.getByRole('link', { name:'react_member · 내 계정' }).click();
-  await page.getByLabel('탈퇴 확인 비밀번호').fill('replacement-password');
-  page.once('dialog', d=>d.accept());
-  await page.getByRole('button', { name:'탈퇴하기' }).click();
-  await expect(page.getByRole('heading', { name:'다시 만나 반가워요' })).toBeVisible();
+test("회원가입·기록 CRUD·사례 철회·비밀번호 변경·탈퇴", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/register");
+  await page.getByLabel("아이디", { exact: true }).fill("react_member");
+  await page
+    .getByLabel("비밀번호", { exact: true })
+    .fill("test-member-password");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "가입하고 시작" }).click();
+  await expect(
+    page.getByRole("heading", { name: "기억하고 싶은 마음의 기록" }),
+  ).toBeVisible();
+  await page.getByLabel("상대 이름 또는 별칭").fill("대학 동기");
+  await page.getByLabel("금액 (원)", { exact: true }).fill("150000");
+  await page
+    .getByLabel("메모", { exact: true })
+    .fill("<img src=x onerror=alert(1)>");
+  await page.getByRole("button", { name: "기록 저장", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "대학 동기" })).toBeVisible();
+  await expect(
+    page.getByText("<img src=x onerror=alert(1)>", { exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "수정", exact: true }).click();
+  await page.getByLabel("금액 (원)", { exact: true }).fill("200000");
+  await page.getByRole("button", { name: "수정 저장" }).click();
+  await expect(page.locator(".amount-small")).toHaveText("200,000원");
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "삭제", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "대학 동기" })).toHaveCount(0);
+  await page.getByRole("link", { name: "사용자 사례", exact: true }).click();
+  await page.getByLabel("실제로 낸 총액 (원)").fill("100000");
+  await page
+    .getByLabel("행사 월", { exact: true })
+    .fill(new Date().toISOString().slice(0, 7));
+  await page
+    .getByLabel("어떤 사이였고, 왜 이 금액을 정했나요?")
+    .fill("함께 수업을 들었던 친구에게 축의금을 냈습니다.");
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "검토 요청하기" }).click();
+  await expect(page.getByText("검토 대기", { exact: true })).toBeVisible();
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "사례 철회" }).click();
+  await expect(page.getByText("제출한 사례가 없어요.")).toBeVisible();
+  await page.getByRole("link", { name: "축의금 계산", exact: true }).click();
+  await expect(
+    page.getByRole("link", { name: "react_member · 내 계정" }),
+  ).toBeVisible();
+  await expect(
+    page.locator("header").getByText("로그인 / 회원가입"),
+  ).toHaveCount(0);
+  await page.getByRole("link", { name: "react_member · 내 계정" }).click();
+  await page
+    .getByLabel("현재 비밀번호", { exact: true })
+    .fill("test-member-password");
+  await page
+    .getByLabel("새 비밀번호", { exact: true })
+    .fill("replacement-password");
+  await page.getByRole("button", { name: "변경하고 로그아웃" }).click();
+  await expect(
+    page.getByRole("heading", { name: "다시 만나 반가워요" }),
+  ).toBeVisible();
+  await page.getByLabel("아이디", { exact: true }).fill("react_member");
+  await page
+    .getByLabel("비밀번호", { exact: true })
+    .fill("replacement-password");
+  await page.getByRole("button", { name: "로그인", exact: true }).click();
+  await page.getByRole("link", { name: "react_member · 내 계정" }).click();
+  await page.getByLabel("탈퇴 확인 비밀번호").fill("replacement-password");
+  page.once("dialog", (d) => d.accept());
+  await page.getByRole("button", { name: "탈퇴하기" }).click();
+  await expect(
+    page.getByRole("heading", { name: "다시 만나 반가워요" }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
 
-test('관리자 사례 승인·반려·삭제와 회원 정지·해제·삭제', async ({ page, request }) => {
-  const headers = { Origin:'http://127.0.0.1:4175', 'X-Requested-With':'chuguigeum' };
-  await request.post('/api/auth/register', { headers, data:{ username:'moderation_member', password:'test-member-password', consent:true } });
-  await request.post('/api/cases', { headers, data:{ kind:'wedding', relation:'colleague', amount:100000, attendance:'meal', people:1, event_month:new Date().toISOString().slice(0,7), story:'관리자 승인과 삭제를 확인하기 위한 테스트 사례입니다.', consent:true } });
-  await page.goto('/#/login');
-  await page.getByLabel('아이디', { exact:true }).fill('e2e_admin');
-  await page.getByLabel('비밀번호', { exact:true }).fill('test-admin-password-123');
-  await page.getByRole('button', { name:'로그인', exact:true }).click();
-  await page.getByRole('link', { name:'관리자', exact:true }).click();
-  const caseCard = page.locator('article').filter({ hasText:'관리자 승인과 삭제를 확인하기 위한 테스트 사례입니다.' });
-  page.once('dialog', d=>d.accept());await caseCard.getByRole('button', { name:'승인', exact:true }).click();
-  await expect(caseCard.getByText('공개 중', { exact:true })).toBeVisible();
-  page.once('dialog', d=>d.accept());await caseCard.getByRole('button', { name:'반려 / 공개 중단' }).click();
-  await expect(caseCard.getByText('반려', { exact:true })).toBeVisible();
-  page.once('dialog', d=>d.dismiss());await caseCard.getByRole('button', { name:'사례 삭제' }).click();
+test("관리자 사례 승인·반려·삭제와 회원 정지·해제·삭제", async ({
+  page,
+  request,
+}) => {
+  const headers = {
+    Origin: "http://127.0.0.1:4175",
+    "X-Requested-With": "chuguigeum",
+  };
+  await request.post("/api/auth/register", {
+    headers,
+    data: {
+      username: "moderation_member",
+      password: "test-member-password",
+      consent: true,
+    },
+  });
+  await request.post("/api/cases", {
+    headers,
+    data: {
+      kind: "wedding",
+      relation: "colleague",
+      amount: 100000,
+      attendance: "meal",
+      people: 1,
+      event_month: new Date().toISOString().slice(0, 7),
+      story: "관리자 승인과 삭제를 확인하기 위한 테스트 사례입니다.",
+      consent: true,
+    },
+  });
+  await page.goto("/login");
+  await page.getByLabel("아이디", { exact: true }).fill("e2e_admin");
+  await page
+    .getByLabel("비밀번호", { exact: true })
+    .fill("test-admin-password-123");
+  await page.getByRole("button", { name: "로그인", exact: true }).click();
+  await page.getByRole("link", { name: "관리자", exact: true }).click();
+  const caseCard = page
+    .locator("article")
+    .filter({
+      hasText: "관리자 승인과 삭제를 확인하기 위한 테스트 사례입니다.",
+    });
+  page.once("dialog", (d) => d.accept());
+  await caseCard.getByRole("button", { name: "승인", exact: true }).click();
+  await expect(caseCard.getByText("공개 중", { exact: true })).toBeVisible();
+  page.once("dialog", (d) => d.accept());
+  await caseCard.getByRole("button", { name: "반려 / 공개 중단" }).click();
+  await expect(caseCard.getByText("반려", { exact: true })).toBeVisible();
+  page.once("dialog", (d) => d.dismiss());
+  await caseCard.getByRole("button", { name: "사례 삭제" }).click();
   await expect(caseCard).toBeVisible();
-  page.once('dialog', d=>d.accept());await caseCard.getByRole('button', { name:'사례 삭제' }).click();
+  page.once("dialog", (d) => d.accept());
+  await caseCard.getByRole("button", { name: "사례 삭제" }).click();
   await expect(caseCard).toHaveCount(0);
-  const memberCard = page.locator('article').filter({ has:page.getByRole('heading', { name:'moderation_member', exact:true }) });
-  page.once('dialog', d=>d.accept());await memberCard.getByRole('button', { name:'계정 정지' }).click();
-  await expect(memberCard.getByRole('button', { name:'정지 해제' })).toBeVisible();
-  page.once('dialog', d=>d.accept());await memberCard.getByRole('button', { name:'정지 해제' }).click();
-  await expect(memberCard.getByRole('button', { name:'계정 정지' })).toBeVisible();
-  page.once('dialog', d=>d.accept('wrong'));await memberCard.getByRole('button', { name:'회원 삭제' }).click();
+  const memberCard = page
+    .locator("article")
+    .filter({
+      has: page.getByRole("heading", {
+        name: "moderation_member",
+        exact: true,
+      }),
+    });
+  page.once("dialog", (d) => d.accept());
+  await memberCard.getByRole("button", { name: "계정 정지" }).click();
+  await expect(
+    memberCard.getByRole("button", { name: "정지 해제" }),
+  ).toBeVisible();
+  page.once("dialog", (d) => d.accept());
+  await memberCard.getByRole("button", { name: "정지 해제" }).click();
+  await expect(
+    memberCard.getByRole("button", { name: "계정 정지" }),
+  ).toBeVisible();
+  page.once("dialog", (d) => d.accept("wrong"));
+  await memberCard.getByRole("button", { name: "회원 삭제" }).click();
   await expect(memberCard).toBeVisible();
-  page.once('dialog', d=>d.accept('moderation_member'));await memberCard.getByRole('button', { name:'회원 삭제' }).click();
+  page.once("dialog", (d) => d.accept("moderation_member"));
+  await memberCard.getByRole("button", { name: "회원 삭제" }).click();
   await expect(memberCard).toHaveCount(0);
-  await page.getByRole('button', { name:'로그아웃', exact:true }).click();
-  await expect(page.getByRole('heading', { name:/금액이 고민이라면/ })).toBeVisible();
+  await page.getByRole("button", { name: "로그아웃", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: /금액이 고민이라면/ }),
+  ).toBeVisible();
 });

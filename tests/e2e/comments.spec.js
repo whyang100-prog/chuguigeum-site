@@ -38,16 +38,14 @@ test("승인 사례 1건에서 회원 댓글·원문·언어 전환·관리자 �
       headers,
       data: { username: "e2e_admin", password: "test-admin-password-123" },
     });
-    await page.goto("/#/admin");
-    const adminCard = page
-      .locator("article.item")
-      .filter({
-        hasText: "댓글 기능을 확인하기 위해 등록한 조의금 사례입니다.",
-      });
+    await page.goto("/admin");
+    const adminCard = page.locator("article.item").filter({
+      hasText: "댓글 기능을 확인하기 위해 등록한 조의금 사례입니다.",
+    });
     page.once("dialog", (dialog) => dialog.accept());
     await adminCard.getByRole("button", { name: "승인", exact: true }).click();
     await expect(adminCard.getByText("공개 중", { exact: true })).toBeVisible();
-    await member.goto("/#/cases");
+    await member.goto("/cases");
     await member.locator(".filters select").nth(0).selectOption("funeral");
     await member.locator(".filters select").nth(1).selectOption("close");
     await member.locator(".filters select").nth(2).selectOption("no-meal");

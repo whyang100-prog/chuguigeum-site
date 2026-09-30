@@ -8,58 +8,58 @@ React는 화면을 담당하고 Node.js는 서버를 담당합니다. 서버·DB
 
 ## 전체 파일 지도
 
-| 파일                                | 역할                                                          |
-| ----------------------------------- | ------------------------------------------------------------- |
-| index.html                          | root 요소, 제목·설명·네이버 인증 메타태그                     |
-| src/main.jsx                        | React 시작, HashRouter·AuthProvider 연결, 기존 hash 주소 호환 |
-| src/App.jsx                         | URL과 페이지 연결, 로그인·관리자 접근 구분                    |
-| src/components/Layout.jsx           | 공통 헤더·메뉴·로그아웃·footer·Outlet                         |
-| src/components/ProtectedRoute.jsx   | 로그인 확인 후 자식 화면 표시                                 |
-| src/components/Ui.jsx               | 공통 입력창·선택창·안내·로딩·오류 UI                          |
-| src/components/VenuePicker.jsx      | 예식장 검색·지역 필터·더 보기·선택                            |
-| src/components/CommunitySummary.jsx | 계산기 옆 로그인 회원용 사례 통계                             |
-| src/pages/CalculatorPage.jsx        | 계산기 입력 상태와 결과                                       |
-| src/pages/AuthPage.jsx              | 로그인·회원가입, 로그인 전 목적지 복귀                        |
-| src/pages/RecordsPage.jsx           | 개인 기록 추가·검색·합계·수정·삭제                            |
-| src/pages/CasesPage.jsx             | 사례 조건 필터·목록·등록·내 사례 철회                         |
-| src/pages/EtiquettePage.jsx         | 결혼식·장례식 예절, 종교별 안내 선택                          |
-| src/pages/AccountPage.jsx           | 비밀번호 변경·본인 탈퇴                                       |
-| src/pages/AdminPage.jsx             | 회원 상태 변경·삭제, 사례 승인·반려·삭제                      |
-| src/context/AuthContext.jsx         | 여러 화면에서 공유하는 로그인 상태                            |
-| src/hooks/useRemote.js              | API 조회·로딩·오류·재조회·요청 취소                           |
-| src/lib/api.js                      | fetch 요청·JSON·오류·세션 만료 처리                           |
-| src/lib/calculator.js               | 화면과 분리된 계산 함수                                       |
-| src/lib/labels.js                   | 선택지·다국어 표시·금액 포맷·날짜                             |
-| src/data/etiquette.js               | 종교별 장례 안내 데이터                                       |
-| src/styles/base.css                 | 기존 계산기·공통 스타일                                       |
-| src/styles/hub.css                  | 기록·회원 화면 스타일                                         |
-| src/styles/react.css                | React 구조·모바일에 필요한 추가 스타일                        |
-| public/favicon.svg                  | 브라우저 탭 아이콘                                            |
-| server.mjs                          | API 연결, 예식장 조회, dist 정적 파일 제공                    |
-| features.mjs                        | 회원·기록·사례·관리자 API와 권한 검증                         |
-| auth.mjs                            | scrypt 비밀번호 해시·검증, 토큰 생성                          |
-| db.mjs                              | Turso 연결                                                    |
-| schema.mjs                          | 기존 테이블 준비                                              |
-| data/venues.json                    | 예식장 초기 자료                                              |
-| scripts/seed.mjs                    | 테이블 준비와 예식장 데이터 입력                              |
-| scripts/admin.mjs                   | 관리자 생성                                                   |
-| scripts/dev.mjs                     | React 개발 서버와 API 동시 실행                               |
-| scripts/e2e-server.mjs              | 임시 DB 브라우저 테스트 서버                                  |
-| vite.config.js                      | JSX 빌드, API 프록시, 개발 포트                               |
-| playwright.config.js                | 브라우저 테스트 설정                                          |
-| calculator.test.mjs                 | 계산·예식장·정적 서버 검증                                    |
-| features.test.mjs                   | 로그인·권한·소유권·삭제·통계 검증                             |
-| tests/e2e/app.spec.js               | 실제 브라우저 클릭·폼 입력 검증                               |
-| render.yaml                         | Render 빌드·실행 설정                                         |
-| package.json                        | 실행 명령과 의존성                                            |
-| package-lock.json                   | 설치 버전 고정                                                |
-| .env.example                        | 설정 항목 예시                                                |
-| .env                                | 로컬 비밀 설정, Git 제외                                      |
-| .gitignore                          | 비밀 파일·빌드·테스트 결과 제외                               |
-| README.md                           | 적용·실행·배포 안내                                           |
-| REACT-STUDY.md                      | 이 학습 안내                                                  |
-| dist/                               | npm run build가 생성한 배포용 결과, 직접 수정하지 않음        |
-| node_modules/                       | npm ci가 설치한 라이브러리, 직접 수정하지 않음                |
+| 파일                                | 역할                                                             |
+| ----------------------------------- | ---------------------------------------------------------------- |
+| index.html                          | root 요소, 제목·설명·네이버 인증 메타태그                        |
+| src/main.jsx                        | React 시작, BrowserRouter·AuthProvider 연결, 기존 hash 주소 호환 |
+| src/App.jsx                         | URL과 페이지 연결, 로그인·관리자 접근 구분                       |
+| src/components/Layout.jsx           | 공통 헤더·메뉴·로그아웃·footer·Outlet                            |
+| src/components/ProtectedRoute.jsx   | 로그인 확인 후 자식 화면 표시                                    |
+| src/components/Ui.jsx               | 공통 입력창·선택창·안내·로딩·오류 UI                             |
+| src/components/VenuePicker.jsx      | 예식장 검색·지역 필터·더 보기·선택                               |
+| src/components/CommunitySummary.jsx | 계산기 옆 로그인 회원용 사례 통계                                |
+| src/pages/CalculatorPage.jsx        | 계산기 입력 상태와 결과                                          |
+| src/pages/AuthPage.jsx              | 로그인·회원가입, 로그인 전 목적지 복귀                           |
+| src/pages/RecordsPage.jsx           | 개인 기록 추가·검색·합계·수정·삭제                               |
+| src/pages/CasesPage.jsx             | 사례 조건 필터·목록·등록·내 사례 철회                            |
+| src/pages/EtiquettePage.jsx         | 결혼식·장례식 예절, 종교별 안내 선택                             |
+| src/pages/AccountPage.jsx           | 비밀번호 변경·본인 탈퇴                                          |
+| src/pages/AdminPage.jsx             | 회원 상태 변경·삭제, 사례 승인·반려·삭제                         |
+| src/context/AuthContext.jsx         | 여러 화면에서 공유하는 로그인 상태                               |
+| src/hooks/useRemote.js              | API 조회·로딩·오류·재조회·요청 취소                              |
+| src/lib/api.js                      | fetch 요청·JSON·오류·세션 만료 처리                              |
+| src/lib/calculator.js               | 화면과 분리된 계산 함수                                          |
+| src/lib/labels.js                   | 선택지·다국어 표시·금액 포맷·날짜                                |
+| src/data/etiquette.js               | 종교별 장례 안내 데이터                                          |
+| src/styles/base.css                 | 기존 계산기·공통 스타일                                          |
+| src/styles/hub.css                  | 기록·회원 화면 스타일                                            |
+| src/styles/react.css                | React 구조·모바일에 필요한 추가 스타일                           |
+| public/favicon.svg                  | 브라우저 탭 아이콘                                               |
+| server.mjs                          | API 연결, 예식장 조회, dist 정적 파일 제공                       |
+| features.mjs                        | 회원·기록·사례·관리자 API와 권한 검증                            |
+| auth.mjs                            | scrypt 비밀번호 해시·검증, 토큰 생성                             |
+| db.mjs                              | Turso 연결                                                       |
+| schema.mjs                          | 기존 테이블 준비                                                 |
+| data/venues.json                    | 예식장 초기 자료                                                 |
+| scripts/seed.mjs                    | 테이블 준비와 예식장 데이터 입력                                 |
+| scripts/admin.mjs                   | 관리자 생성                                                      |
+| scripts/dev.mjs                     | React 개발 서버와 API 동시 실행                                  |
+| scripts/e2e-server.mjs              | 임시 DB 브라우저 테스트 서버                                     |
+| vite.config.js                      | JSX 빌드, API 프록시, 개발 포트                                  |
+| playwright.config.js                | 브라우저 테스트 설정                                             |
+| calculator.test.mjs                 | 계산·예식장·정적 서버 검증                                       |
+| features.test.mjs                   | 로그인·권한·소유권·삭제·통계 검증                                |
+| tests/e2e/app.spec.js               | 실제 브라우저 클릭·폼 입력 검증                                  |
+| render.yaml                         | Render 빌드·실행 설정                                            |
+| package.json                        | 실행 명령과 의존성                                               |
+| package-lock.json                   | 설치 버전 고정                                                   |
+| .env.example                        | 설정 항목 예시                                                   |
+| .env                                | 로컬 비밀 설정, Git 제외                                         |
+| .gitignore                          | 비밀 파일·빌드·테스트 결과 제외                                  |
+| README.md                           | 적용·실행·배포 안내                                              |
+| REACT-STUDY.md                      | 이 학습 안내                                                     |
+| dist/                               | npm run build가 생성한 배포용 결과, 직접 수정하지 않음           |
+| node_modules/                       | npm ci가 설치한 라이브러리, 직접 수정하지 않음                   |
 
 정리 명령 `npm run cleanup:legacy`는 남아 있는 구버전 화면 파일만 프로젝트 밖에 백업하고 제거합니다.
 
@@ -125,7 +125,7 @@ Layout, ProtectedRoute, AccountPage가 각각 useAuth()로 같은 상태를 읽�
 ## 7. React Router
 
 App.jsx에서 주소에 따라 화면을 지정합니다. Layout의 Outlet에 현재 페이지가 들어갑니다.
-HashRouter를 사용하므로 주소는 `/#/records`처럼 생깁니다.
+BrowserRouter를 사용하므로 주소는 `/records`처럼 생깁니다. Node.js 서버가 해당 경로의 HTML도 제공하므로 직접 접속과 새로고침이 가능합니다.
 Link는 앱 안의 페이지 이동, 일반 a는 외부 사이트 이동에 사용합니다.
 ProtectedRoute는 비로그인 상태에 안내를 표시하고 로그인 후 원래 목적지로 이어줍니다.
 
@@ -298,3 +298,30 @@ DB 트리거는 지정한 DB 작업이 일어나면 자동으로 실행되는 SQ
 
 사용자 공개 사례와 관리자 사례 목록은 한 페이지에 5건씩 표시합니다.
 관리자 사례 목록에서는 마지막 페이지의 사례를 삭제하면 남아 있는 마지막 페이지로 자동 조정합니다.
+
+## 검색 최적화와 React 사전 렌더링
+
+| 파일                            | 역할                                                                           |
+| ------------------------------- | ------------------------------------------------------------------------------ |
+| src/main.jsx                    | BrowserRouter 시작, 옛 해시 주소를 새 경로로 변환                              |
+| src/entry-server.jsx            | StaticRouter와 renderToString으로 공개 React 화면을 HTML 문자열로 생성         |
+| scripts/prerender.mjs           | 빌드된 HTML에 본문·메타정보 삽입, robots.txt와 sitemap.xml 생성                |
+| src/lib/site.js                 | 사이트 기본 주소와 공개 경로·제목·설명                                         |
+| src/components/PageMetadata.jsx | 브라우저에서 페이지나 언어가 바뀔 때 제목·canonical·robots 갱신                |
+| tests/e2e/seo.spec.js           | JavaScript를 끈 브라우저의 공개 본문·링크, 새 주소 새로고침, 옛 주소 호환 검증 |
+
+이제 build 명령은 세 작업을 수행합니다.
+
+1. `vite build`: 브라우저용 JS와 CSS 생성
+2. `vite build --ssr ...`: Node.js에서 실행할 React 렌더링 코드 준비
+3. `node scripts/prerender.mjs`: 공개 화면을 HTML로 저장하고 임시 dist-server 제거
+
+빌드 결과의 `dist/index.html`에는 계산기와 설명이 이미 들어 있습니다.
+`dist/etiquette/index.html`에는 예절 안내가 들어 있습니다.
+Node.js는 `/etiquette` 요청에 이 파일을 보내므로 검색로봇이 JavaScript를 기다리지 않아도 기본 본문을 읽을 수 있습니다.
+회원 데이터는 빌드에 포함하지 않습니다. 이후 브라우저에서 createRoot로 앱을 시작하고 API를 통해 로그인 상태·예식장·개인 데이터를 조회합니다.
+이 구현은 hydrateRoot를 사용한 hydration 방식은 아니며, 브라우저 앱이 사전 생성된 영역을 다시 렌더링합니다.
+HTML만으로 계산 버튼이나 종교 선택 등 상호작용까지 동작하는 것은 아니므로 JavaScript가 필요한 기능은 안내 문구로 구분합니다.
+
+`noindex`는 검색 제외 지시이고 로그인 보안 수단이 아닙니다. 비공개 API 접근은 계속 서버가 검사합니다.
+사이트맵은 검색로봇에게 공개 URL을 알려주는 목록입니다. 사이트맵에 추가했다고 자동으로 검색에 노출되는 것은 아닙니다.

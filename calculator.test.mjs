@@ -51,6 +51,43 @@ test("서버 검색, 정적 화면, 비밀 파일 차단", async () => {
     const html = await response.text();
     assert.match(html, /축의금 얼마하지/);
     assert.match(html, /naver-site-verification/);
+    assert.match(html, /친밀도에 따른 기준 금액/);
+    assert.match(
+      html,
+      /rel="canonical" href="https:\/\/chuguigeum-how-much.onrender.com\/"/,
+    );
+    assert.match(html, /href="\/etiquette"/);
+    const etiquette = await fetch(base + "/etiquette");
+    assert.equal(etiquette.status, 200);
+    const etiquetteHtml = await etiquette.text();
+    assert.match(etiquetteHtml, /<title>결혼식·장례식 예절 가이드/);
+    assert.match(etiquetteHtml, /종교별 인사 방법/);
+    const sitemap = await (await fetch(base + "/sitemap.xml")).text();
+    assert.match(
+      sitemap,
+      /<loc>https:\/\/chuguigeum-how-much.onrender.com\/etiquette<\/loc>/,
+    );
+    assert.doesNotMatch(sitemap, /records|admin|login|#/);
+    const robots = await (await fetch(base + "/robots.txt")).text();
+    assert.match(robots, /Allow: \//);
+    assert.doesNotMatch(robots, /Disallow: \/assets/);
+    for (const path of [
+      "/records",
+      "/cases",
+      "/account",
+      "/admin",
+      "/login",
+      "/register",
+    ]) {
+      const privatePage = await fetch(base + path);
+      assert.equal(privatePage.status, 200);
+      assert.match(privatePage.headers.get("x-robots-tag"), /noindex/);
+    }
+    assert.equal(
+      (await fetch(base + "/etiquette/", { redirect: "manual" })).status,
+      301,
+    );
+    assert.equal((await fetch(base + "/not-a-real-page")).status, 404);
     const script = html.match(/src="([^"]+\.js)"/)[1];
     const bundle = await fetch(base + script);
     assert.equal(bundle.status, 200);

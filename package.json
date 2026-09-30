@@ -9,7 +9,7 @@
     "test": "npm run build && node --test calculator.test.mjs features.test.mjs i18n.test.mjs comments.test.mjs case-list.test.mjs",
     "admin:create": "node --env-file-if-exists=.env scripts/admin.mjs",
     "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
-    "build": "vite build",
+    "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist-server && node scripts/prerender.mjs",
     "test:e2e": "npm run build && playwright test",
     "cleanup:legacy": "node scripts/cleanup-legacy.mjs"
   },

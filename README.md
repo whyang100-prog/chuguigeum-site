@@ -61,7 +61,7 @@ git push
 
 네이버 인증 메타태그는 루트 index.html에 유지되어 빌드 결과에도 포함됩니다.
 기존 `/hub#records` 링크도 새 화면으로 연결됩니다.
-이 버전은 클라이언트 렌더링입니다. 검색용 정적 페이지/SSR은 별도 구현하지 않았습니다.
+계산기와 예절 안내는 빌드 시 React로 HTML을 생성합니다. 브라우저에서는 React가 로그인 상태와 상호작용을 연결합니다.
 
 ## 구버전 파일 정리
 
@@ -87,15 +87,15 @@ Node.js 서버는 React에서 호출하는 로그인·기록·관리자 API이�
 
 ## 페이지
 
-| 주소                  | 내용                                | 접근   |
-| --------------------- | ----------------------------------- | ------ |
-| /#/                   | 계산기                              | 공개   |
-| /#/etiquette          | 예절 안내                           | 공개   |
-| /#/login, /#/register | 로그인·가입                         | 공개   |
-| /#/records            | 개인 기록 CRUD                      | 회원   |
-| /#/cases              | 사례 등록·조회·철회·통계            | 회원   |
-| /#/account            | 비밀번호 변경·탈퇴                  | 회원   |
-| /#/admin              | 회원 정지·삭제, 사례 승인·반려·삭제 | 관리자 |
+| 주소              | 내용                                | 접근   |
+| ----------------- | ----------------------------------- | ------ |
+| /                 | 계산기                              | 공개   |
+| /etiquette        | 예절 안내                           | 공개   |
+| /login, /register | 로그인·가입                         | 공개   |
+| /records          | 개인 기록 CRUD                      | 회원   |
+| /cases            | 사례 등록·조회·철회·통계            | 회원   |
+| /account          | 비밀번호 변경·탈퇴                  | 회원   |
+| /admin            | 회원 정지·삭제, 사례 승인·반려·삭제 | 관리자 |
 
 관리자 생성은 기존처럼 `.env`의 ADMIN_USERNAME, ADMIN_PASSWORD 설정 후 `npm run admin:create`입니다.
 일반 회원으로 사용하지 않은 아이디, 14자 이상 비밀번호를 사용하고 생성 후 ADMIN_PASSWORD를 지우세요.
@@ -169,3 +169,29 @@ Render의 Build Command는 `npm ci --include=dev && npm run build && npm run db:
 
 사용자 공개 사례와 관리자 사례 목록은 한 페이지에 5건씩 표시합니다.
 관리자 사례 목록에서는 마지막 페이지의 사례를 삭제하면 남아 있는 마지막 페이지로 자동 조정합니다.
+
+## 네이버 검색을 위한 공개 페이지
+
+`npm run build`는 React 브라우저 빌드 후, React 서버 렌더링 API로 계산기(`/`)와 예절 안내(`/etiquette`)를 HTML로 미리 만듭니다.
+매 요청마다 렌더링하는 SSR 대신 빌드 시 사전 렌더링을 사용합니다. 검색로봇과 일반 사용자에게 같은 HTML을 제공합니다.
+브라우저에서는 기존 React 앱을 시작하여 계산·로그인·언어 변경 등을 처리합니다.
+공개 페이지 내용은 기존 React 컴포넌트에서 생성하므로 별도의 복제 설명 페이지를 관리하지 않습니다.
+
+- 제목·설명·canonical·Open Graph 메타정보를 페이지별로 제공합니다.
+- `robots.txt`는 공개 페이지와 JS/CSS 수집을 허용하고 API 경로를 제외합니다.
+- `sitemap.xml`에는 `/`와 `/etiquette`만 포함합니다.
+- 계정·기록·사례·관리자 경로에는 noindex 메타 및 HTTP 헤더를 적용합니다. 실제 보안은 기존 서버 인증과 권한 검증으로 처리합니다.
+- 기존 해시 주소와 `/hub#records`도 브라우저에서 새 주소로 연결합니다.
+- 없는 경로는 HTTP 404로 응답합니다.
+- 도메인을 바꾸면 `src/lib/site.js`의 SITE_ORIGIN을 변경하고 다시 빌드하세요.
+
+배포 후 다음 주소가 정상적으로 열리는지 확인하세요.
+
+- https://chuguigeum-how-much.onrender.com/
+- https://chuguigeum-how-much.onrender.com/etiquette
+- https://chuguigeum-how-much.onrender.com/robots.txt
+- https://chuguigeum-how-much.onrender.com/sitemap.xml
+
+서치어드바이저에서 사이트맵을 제출하고, 개선된 메인 페이지와 예절 페이지를 수집 요청하세요.
+화면에 사이트 주소가 이미 붙어 있다면 사이트맵 입력란에는 `sitemap.xml`, 웹페이지 수집에는 `/` 및 `/etiquette` 경로를 사용합니다.
+최적화는 수집과 이해를 돕지만 사이트명 검색 노출·반영 시점·순위를 보장하지 않습니다.

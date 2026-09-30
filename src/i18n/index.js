@@ -18,15 +18,6 @@ export const systemMessage = (message) => translateMessage(language, message);
 function updateDocument() {
   if (typeof document === "undefined") return;
   document.documentElement.lang = language;
-  document.title = t("축의금 얼마하지? — 마음에 맞는 축의금 계산기");
-  document
-    .querySelector('meta[name="description"]')
-    ?.setAttribute(
-      "content",
-      t(
-        "예식장 식대와 친밀도, 식사 인원을 고려해 나에게 맞는 축의금 참고 금액을 계산해 보세요.",
-      ),
-    );
 }
 
 export function setLanguage(next) {

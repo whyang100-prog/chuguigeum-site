@@ -75,7 +75,7 @@ test("영어·일본어 전환, 입력 유지, KRW 표시, 지역 검색, 새로
 test("영문 서버 오류, 회원 기록·사례의 원문 보존과 일본어 관리자", async ({
   page,
 }) => {
-  await page.goto("/#/login");
+  await page.goto("/login");
   await picker(page).selectOption("en");
   await page.getByLabel("Username", { exact: true }).fill("language_member");
   await page
@@ -134,8 +134,8 @@ test("영문 서버 오류, 회원 기록·사례의 원문 보존과 일본어 
     }),
   ).toBeVisible();
   await page.getByRole("button", { name: ja["로그아웃"], exact: true }).click();
-  await expect(page).toHaveURL(/#\/$/);
-  await page.goto("/#/login");
+  await expect(page).toHaveURL(/:\d+\/$/);
+  await page.goto("/login");
   await page.getByLabel(ja["아이디"], { exact: true }).fill("e2e_admin");
   await page
     .getByLabel(ja["비밀번호"], { exact: true })

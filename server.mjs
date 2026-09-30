@@ -1,3 +1,4 @@
+import { appPaths, publicPaths } from "./src/lib/site.js";
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
@@ -16,7 +17,15 @@ const features = featureRoutes(db);
 // 빌드된 공개 파일만 제공합니다. src나 환경변수 파일은 제공하지 않습니다.
 const files = {
   "/": ["index.html", "text/html; charset=utf-8"],
-  "/hub": ["index.html", "text/html; charset=utf-8"],
+  "/hub": ["shell.html", "text/html; charset=utf-8"],
+  "/etiquette": ["etiquette/index.html", "text/html; charset=utf-8"],
+  "/robots.txt": ["robots.txt", "text/plain; charset=utf-8"],
+  "/sitemap.xml": ["sitemap.xml", "application/xml; charset=utf-8"],
+  ...Object.fromEntries(
+    appPaths
+      .filter((path) => !publicPaths.includes(path))
+      .map((path) => [path, ["shell.html", "text/html; charset=utf-8"]]),
+  ),
   "/favicon.svg": ["favicon.svg", "image/svg+xml"],
 };
 const assetTypes = {
@@ -87,6 +96,21 @@ export const server = http.createServer(async (req, res) => {
         storage: db ? "turso" : "development-seed",
       });
       return;
+    }
+    if (
+      pathname.endsWith("/") &&
+      pathname !== "/" &&
+      appPaths.includes(pathname.slice(0, -1))
+    ) {
+      res.writeHead(301, { Location: pathname.slice(0, -1) + url.search });
+      res.end();
+      return;
+    }
+    if (
+      (appPaths.includes(pathname) && !publicPaths.includes(pathname)) ||
+      pathname === "/hub"
+    ) {
+      res.setHeader("X-Robots-Tag", "noindex, follow");
     }
     const match = pathname.match(
       /^\/assets\/([a-zA-Z0-9_.-]+\.(js|css|svg|png|woff2))$/,
