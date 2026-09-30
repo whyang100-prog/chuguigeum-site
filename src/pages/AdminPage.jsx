@@ -1,3 +1,4 @@
+import CommentThread from "../components/CommentThread";
 import { t, useLanguage } from "../i18n/index";
 import { useState } from "react";
 import { api } from "../lib/api";
@@ -167,6 +168,7 @@ export default function AdminPage() {
                 {item.event_month}
               </p>
               <p>{item.story}</p>
+              <CommentThread caseId={item.id} />
               <div className="item-actions">
                 <button
                   disabled={busy}

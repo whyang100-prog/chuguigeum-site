@@ -1,3 +1,4 @@
+import CommentThread from "./CommentThread";
 import { t, useLanguage } from "../i18n/index";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -50,6 +51,7 @@ export default function CommunitySummary({ filters, showCases = false }) {
                     {item.event_month}
                   </p>
                   <p>{item.story}</p>
+                  <CommentThread caseId={item.id} />
                 </article>
               ))
             ) : (

@@ -1,3 +1,4 @@
+import { commentRoutes } from "./comments.mjs";
 import { randomUUID } from "node:crypto";
 import { hashPassword, verifyPassword, digest, newToken } from "./auth.mjs";
 const fail = (status, message) => {
@@ -213,6 +214,8 @@ export function featureRoutes(db) {
       return true;
     }
     if (!u) fail(401, "로그인이 필요합니다.");
+    if (await commentRoutes({ db, user: u, req, url, json, body, limit, fail }))
+      return true;
     if (path === "/api/auth/logout" && req.method === "POST") {
       const token = (req.headers.cookie ?? "")
         .split(";")
