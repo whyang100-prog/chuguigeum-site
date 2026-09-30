@@ -192,7 +192,7 @@ export function featureRoutes(db) {
       if (!Number.isSafeInteger(page) || page < 0 || page > 100000) {
         fail(400, "사례 페이지가 올바르지 않습니다.");
       }
-      const pageSize = 20;
+      const pageSize = 5;
       const conditions = `FROM cases c JOIN users u ON u.id=c.user_id
         WHERE c.status='approved' AND u.status='active' AND c.kind=?
         AND c.relation=? AND c.attendance=? AND c.people=? AND c.event_month>=?`;
@@ -440,10 +440,34 @@ export function featureRoutes(db) {
         return true;
       }
       if (path === "/api/admin/cases" && req.method === "GET") {
+        const requestedPage = Number(url.searchParams.get("page") || 0);
+        if (
+          !Number.isSafeInteger(requestedPage) ||
+          requestedPage < 0 ||
+          requestedPage > 100000
+        ) {
+          fail(400, "사례 페이지가 올바르지 않습니다.");
+        }
+        const totalCases = Number(
+          (
+            await query(
+              "SELECT COUNT(*) AS total FROM cases c JOIN users u ON u.id=c.user_id",
+            )
+          ).rows[0].total,
+        );
+        const pageSize = 5;
+        const page = Math.min(
+          requestedPage,
+          Math.max(0, Math.ceil(totalCases / pageSize) - 1),
+        );
         json(200, {
+          totalCases,
+          page,
+          pageSize,
           cases: (
             await query(
-              "SELECT c.*,u.username FROM cases c JOIN users u ON u.id=c.user_id ORDER BY c.created_at DESC",
+              "SELECT c.*,u.username FROM cases c JOIN users u ON u.id=c.user_id ORDER BY c.created_at DESC,c.id DESC LIMIT ? OFFSET ?",
+              [pageSize, page * pageSize],
             )
           ).rows,
         });

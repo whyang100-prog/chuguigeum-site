@@ -71,29 +71,42 @@ test("같은 회원의 모든 승인 사례 페이지 조회와 등록 횟수 �
     );
     await db.execute("UPDATE cases SET status='approved'");
     const first = (await call("community")).body;
-    const second = (await call("community?page=1")).body;
-    const third = (await call("community?page=2")).body;
     assert.equal(first.totalCases, 55);
-    assert.equal(first.count, 1, "통계 참여자는 회원 수 기준");
+    assert.equal(first.count, 1);
     assert.equal(first.median, null);
-    assert.equal(first.cases.length, 20);
-    assert.equal(second.cases.length, 20);
-    assert.equal(third.cases.length, 15);
-    assert.equal(
-      new Set(
-        [...first.cases, ...second.cases, ...third.cases].map((c) => c.id),
-      ).size,
-      55,
-    );
+    const ids = [];
+    for (let page = 0; page < 11; page++) {
+      const data = (await call("community?page=" + page)).body;
+      assert.equal(data.cases.length, 5);
+      ids.push(...data.cases.map((item) => item.id));
+    }
+    assert.equal(new Set(ids).size, 55);
+    assert.equal((await call("admin/cases")).status, 403);
+    await db.execute({
+      sql: "UPDATE users SET role='admin' WHERE id=?",
+      args: [userId],
+    });
+    assert.equal((await call("admin/cases?page=-1")).status, 400);
+    const last = (await call("admin/cases?page=10")).body;
+    assert.equal(last.cases.length, 5);
+    assert.equal(last.totalCases, 55);
+    for (const item of last.cases)
+      await db.execute({
+        sql: "DELETE FROM cases WHERE id=?",
+        args: [item.id],
+      });
+    const afterDelete = (await call("admin/cases?page=10")).body;
+    assert.equal(afterDelete.page, 9);
+    assert.equal(afterDelete.cases.length, 5);
     assert.ok(!JSON.stringify(first).includes(userId));
     assert.equal((await call("community?relation=close")).body.totalCases, 0);
     assert.equal((await call("community?page=-1")).status, 400);
-    assert.equal((await call("community?page=3")).body.cases.length, 0);
+    assert.equal((await call("community?page=11")).body.cases.length, 0);
     await db.execute({
       sql: "UPDATE cases SET status='rejected' WHERE id=?",
       args: [first.cases[0].id],
     });
-    assert.equal((await call("community")).body.totalCases, 54);
+    assert.equal((await call("community")).body.totalCases, 49);
   } finally {
     server.closeAllConnections();
     await new Promise((resolve) => server.close(resolve));

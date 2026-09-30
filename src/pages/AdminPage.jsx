@@ -8,7 +8,8 @@ import { Heading, Notice, RemoteStatus } from "../components/Ui";
 export default function AdminPage() {
   useLanguage();
   const members = useRemote("/api/admin/users");
-  const cases = useRemote("/api/admin/cases");
+  const [casePage, setCasePage] = useState(0);
+  const cases = useRemote("/api/admin/cases?page=" + casePage);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   async function mutate(path, method, body, message) {
@@ -151,7 +152,7 @@ export default function AdminPage() {
         <section>
           <h2>
             {t("사례 검토 ")}
-            {cases.data?.cases.length ?? "…"}
+            {cases.data?.totalCases ?? "…"}
             {t("건")}
           </h2>
           <RemoteStatus {...cases} />
@@ -201,6 +202,29 @@ export default function AdminPage() {
               </div>
             </article>
           ))}
+          {cases.data && cases.data.totalCases > cases.data.pageSize && (
+            <div className="comment-heading" aria-label={t("사례 페이지 이동")}>
+              <button
+                className="secondary"
+                disabled={busy || cases.data.page === 0}
+                onClick={() => setCasePage(cases.data.page - 1)}
+              >
+                {t("이전 사례")}
+              </button>
+              <span>{t("{0}페이지", [cases.data.page + 1])}</span>
+              <button
+                className="secondary"
+                disabled={
+                  busy ||
+                  (cases.data.page + 1) * cases.data.pageSize >=
+                    cases.data.totalCases
+                }
+                onClick={() => setCasePage(cases.data.page + 1)}
+              >
+                {t("다음 사례")}
+              </button>
+            </div>
+          )}
           {cases.data?.cases.length === 0 && (
             <p className="empty-state">{t("검토할 사례가 없어요.")}</p>
           )}

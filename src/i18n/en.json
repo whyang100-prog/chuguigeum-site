@@ -346,5 +346,6 @@
   "승인 사례 {0}건 · 같은 회원의 사례도 모두 표시해요.": "{0} approved stories · Multiple stories from the same member are all listed.",
   "이전 사례": "Previous stories",
   "다음 사례": "Next stories",
-  "사례는 같은 회원의 글도 모두 표시합니다. 통계는 회원별 최근 승인 사례 1건만 반영합니다.": "All matching stories are listed, including multiple posts by the same member. Statistics use only the latest approved story per member."
+  "사례는 같은 회원의 글도 모두 표시합니다. 통계는 회원별 최근 승인 사례 1건만 반영합니다.": "All matching stories are listed, including multiple posts by the same member. Statistics use only the latest approved story per member.",
+  "사례 페이지 이동": "Story pagination"
 }
