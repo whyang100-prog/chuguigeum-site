@@ -70,6 +70,11 @@ export default function CasesPage() {
         )}
       </Heading>
       <Notice>{notice}</Notice>
+      <p className="hint">
+        {t(
+          "사례는 같은 회원의 글도 모두 표시합니다. 통계는 회원별 최근 승인 사례 1건만 반영합니다.",
+        )}
+      </p>
       <div className="filters">
         <Select
           label={t("경조사 종류")}
@@ -94,7 +99,11 @@ export default function CasesPage() {
       </div>
       <div className="hub-grid">
         <section aria-label={t("승인된 사례")}>
-          <CommunitySummary key={revision} filters={filters} showCases />
+          <CommunitySummary
+            key={revision + ":" + JSON.stringify(filters)}
+            filters={filters}
+            showCases
+          />
         </section>
         <section className="panel">
           <h2>{t("나의 경험 나누기")}</h2>

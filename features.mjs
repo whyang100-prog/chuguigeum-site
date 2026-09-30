@@ -188,12 +188,38 @@ export function featureRoutes(db) {
       const since = new Date();
       since.setFullYear(since.getFullYear() - 2);
       const sinceMonth = since.toISOString().slice(0, 7);
-      const rows = (
-        await query(
-          `SELECT c.id,c.amount,c.story,c.event_month,c.created_at FROM cases c JOIN users u ON u.id=c.user_id WHERE c.status='approved' AND u.status='active' AND c.kind=? AND c.relation=? AND c.attendance=? AND c.people=? AND c.event_month>=? AND NOT EXISTS (SELECT 1 FROM cases newer WHERE newer.user_id=c.user_id AND newer.status='approved' AND newer.kind=c.kind AND newer.relation=c.relation AND newer.attendance=c.attendance AND newer.people=c.people AND (newer.created_at>c.created_at OR (newer.created_at=c.created_at AND newer.id>c.id))) ORDER BY c.amount`,
-          [kind, relation, attendance, people, sinceMonth],
-        )
-      ).rows;
+      const page = Number(url.searchParams.get("page") || 0);
+      if (!Number.isSafeInteger(page) || page < 0 || page > 100000) {
+        fail(400, "사례 페이지가 올바르지 않습니다.");
+      }
+      const pageSize = 20;
+      const conditions = `FROM cases c JOIN users u ON u.id=c.user_id
+        WHERE c.status='approved' AND u.status='active' AND c.kind=?
+        AND c.relation=? AND c.attendance=? AND c.people=? AND c.event_month>=?`;
+      const args = [kind, relation, attendance, people, sinceMonth];
+      // 목록은 모든 승인 사례, 통계는 회원별 최근 1건을 사용합니다.
+      const [statistics, total, listed] = await db.batch(
+        [
+          {
+            sql: `SELECT c.amount ${conditions} AND NOT EXISTS (
+            SELECT 1 FROM cases newer WHERE newer.user_id=c.user_id
+            AND newer.status='approved' AND newer.kind=c.kind
+            AND newer.relation=c.relation AND newer.attendance=c.attendance
+            AND newer.people=c.people AND newer.event_month>=?
+            AND (newer.created_at>c.created_at OR
+              (newer.created_at=c.created_at AND newer.id>c.id))) ORDER BY c.amount`,
+            args: [...args, sinceMonth],
+          },
+          { sql: `SELECT COUNT(*) AS total ${conditions}`, args },
+          {
+            sql: `SELECT c.id,c.amount,c.story,c.event_month,c.created_at ${conditions}
+            ORDER BY c.created_at DESC,c.id DESC LIMIT ? OFFSET ?`,
+            args: [...args, pageSize, page * pageSize],
+          },
+        ],
+        "read",
+      );
+      const rows = statistics.rows;
       const amounts = rows.map((r) => Number(r.amount));
       const n = amounts.length;
       const median =
@@ -207,9 +233,10 @@ export function featureRoutes(db) {
         median,
         minimum: 5,
         period: "최근 24개월 행사",
-        cases: [...rows]
-          .sort((a, b) => b.created_at.localeCompare(a.created_at))
-          .slice(0, 50),
+        totalCases: Number(total.rows[0].total),
+        page,
+        pageSize,
+        cases: listed.rows,
       });
       return true;
     }
@@ -365,7 +392,6 @@ export function featureRoutes(db) {
       const b = await body(req);
       if (b.consent !== true)
         fail(400, "익명 공개와 통계 활용에 동의해 주세요.");
-      await limit("case:" + u.id, 10);
       const month = text(b.event_month, 7, 7, "행사 월");
       if (
         !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) ||
